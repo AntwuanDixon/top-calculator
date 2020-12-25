@@ -67,6 +67,9 @@ keys.addEventListener('click', e => {
                 {
                 evalOperation(displayedNum, key, previousKeyType, action);
                 }
+            if (action === 'negative') {
+                toggleNegative(displayedNum);
+            }
             if (action === 'decimal') {
                 addDecimal(displayedNum, previousKeyType)
             }
@@ -101,7 +104,6 @@ function displayNumber (keyContent, displayedNum, previousKeyType) {
 function evalOperation (displayedNum, key, previousKeyType, action) {
 
         const firstValue = calculator.dataset.firstValue;
-        console.log(calculator.dataset.previousKeyType);
         const operator = calculator.dataset.operator;
         const secondValue = displayedNum;
             
@@ -130,6 +132,15 @@ function addDecimal (displayedNum, previousKeyType) {
         calculator.dataset.previousKeyType = 'decimal';
 };
 
+function toggleNegative(displayedNum){
+    if (!displayedNum.includes('-')) {
+        display.textContent = '-' + displayedNum;
+    } else {
+        display.textContent = displayedNum.substring(1)
+    }
+    calculator.dataset.previousKeyType = 'negative';
+}
+
 function clearDisplay () {
         display.textContent = '0';
         calculator.dataset.previousKeyType = 'clear';
@@ -153,11 +164,11 @@ function invokeCalculation (displayedNum, previousKeyType) {
 }
 
 function refactorDigitSize () {
-    if (display.textContent.length > 10 && display.textContent.length < 17) {
+    if (display.textContent.length > 10 && display.textContent.length < 16) {
         display.style.fontSize = "3em";
-    } else if (display.textContent.length >= 17 && display.textContent.length < 25) {
+    } else if (display.textContent.length >= 16 && display.textContent.length < 24) {
         display.style.fontSize = "2em";
-    } else if (display.textContent.length >= 25) {
+    } else if (display.textContent.length >= 24) {
         display.textContent = parseFloat(display.textContent);
     }
 }
