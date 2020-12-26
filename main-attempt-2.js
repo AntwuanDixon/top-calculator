@@ -1,53 +1,13 @@
 const calculator = document.querySelector('.calculator');
+const equal = document.querySelector('key--equal');
 const keys = calculator.querySelector('.calculator__keys');
 const numberKeys = calculator.querySelectorAll('.number');
 const display = document.querySelector('.calculator__display')
 const allButtons = document.querySelectorAll('button');
 
-document.onkeydown = function (e) {
-    allButtons.forEach(function(button) {
-        if (button.dataset.key === e.key) {
-            const key = button;
-            const action = button.dataset.action;
-            const keyContent = button.textContent;
-            const displayedNum = display.textContent;
-            const previousKeyType = calculator.dataset.previousKeyType;
-            if (!action) {
-                displayNumber(keyContent, displayedNum, previousKeyType);
-            }
-            if (
-                action === 'add' ||
-                action === 'subtract' ||
-                action === 'divide' ||
-                action === 'multiply'
-                )
-                {
-                evalOperation(displayedNum, key, previousKeyType, action);
-                }
-            if (action === 'decimal') {
-                addDecimal(displayedNum, previousKeyType)
-            }
-            if (action === 'calculate') {
-                invokeCalculation(displayedNum, previousKeyType);
-            }
-            if (action === 'clear') {
-                clearDisplay()
-            }
-            refactorDigitSize ();
-            Array.from(key.parentNode.children)
-                .forEach(k => {
-                    k.classList.remove('is-depressed');
-                }
-                    );
-                    //key.style.backgroundColor = "white";
-            }
-    });
-    if (e.key === "Backspace") {
-        display.textContent = display.textContent.slice(0, -1);
-    }
-};
 
-keys.addEventListener('click', e => {
+keys.addEventListener('mousedown', e => {
+
         if (e.target.matches('button')) {
             display.style.fontSize = "4em";
             const key = e.target;
@@ -55,32 +15,11 @@ keys.addEventListener('click', e => {
             const keyContent = key.textContent;
             const displayedNum = display.textContent;
             const previousKeyType = calculator.dataset.previousKeyType;
-            if (!action) {
-                displayNumber(keyContent, displayedNum, previousKeyType);
-            }
-            if (
-                action === 'add' ||
-                action === 'subtract' ||
-                action === 'divide' ||
-                action === 'multiply'
-                )
-                {
-                evalOperation(displayedNum, key, previousKeyType, action);
-                }
-            if (action === 'negative') {
-                toggleNegative(displayedNum);
-            }
-            if (action === 'decimal') {
-                addDecimal(displayedNum, previousKeyType)
-            }
-            if (action === 'calculate') {
-                invokeCalculation(displayedNum, previousKeyType);
-            }
             if (action === 'clear') {
-                clearDisplay()
-            };
-            refactorDigitSize ();
-    
+                console.log('clear');
+            }
+            operateCalculator(e, key, keyContent, displayedNum, action, previousKeyType);
+            
             Array.from(key.parentNode.children)
                 .forEach(k => {
                     k.classList.remove('is-depressed');
@@ -88,34 +27,92 @@ keys.addEventListener('click', e => {
                     );
                     //key.style.backgroundColor = "white";
             }
+        
         });
 
+document.onkeydown = function (e) {
+
+    allButtons.forEach(function(button) {
+        if (button.dataset.key === e.key) {
+            display.style.fontSize = "4em";
+            const key = button;
+            const action = button.dataset.action;
+            const keyContent = button.textContent;
+            const displayedNum = display.textContent;
+            const previousKeyType = calculator.dataset.previousKeyType;
+
+            operateCalculator(e, key, keyContent, displayedNum, action, previousKeyType);
+
+            Array.from(key.parentNode.children)
+                .forEach(k => {
+                    k.classList.remove('is-depressed');
+                }
+                    );
+                    //key.style.backgroundColor = "white";
+            }
+            
+    });
+};
+
+function operateCalculator (e, key, keyContent, displayedNum, action, previousKeyType) {
+    if (action === 'clear') {
+        clearDisplay();
+    }
+    if (!action) {
+        displayNumber(keyContent, displayedNum, previousKeyType);
+    }
+
+    if (
+        action === 'add' ||
+        action === 'subtract' ||
+        action === 'divide' ||
+        action === 'multiply'
+        )
+        {
+        evalOperation(displayedNum, key, previousKeyType, action);
+        }
+    if (action === 'decimal') {
+        addDecimal(displayedNum, previousKeyType)
+    }
+
+    if (action === 'calculate') {
+        invokeCalculation(displayedNum, previousKeyType);
+    }
+
+
+    refactorDigitSize();
+}
 
 
 function displayNumber (keyContent, displayedNum, previousKeyType) {
-        if (displayedNum === '0' || previousKeyType === 'operator') {
+        if (displayedNum === '0' || previousKeyType === 'operator' || previousKeyType === 'calculate') {
             display.textContent = keyContent;
         } else {
             display.textContent = displayedNum + keyContent;
         }
         calculator.dataset.previousKeyType = 'number';
+        if (previousKeyType === 'calculate') {
+            calculator.dataset.previousOperatorType = 'calculate';
+        }
 };
 
 function evalOperation (displayedNum, key, previousKeyType, action) {
-
+        const previousOperatorType = calculator.dataset.previousOperatorType;
         const firstValue = calculator.dataset.firstValue;
         const operator = calculator.dataset.operator;
         const secondValue = displayedNum;
-            
+
         if (firstValue && operator && previousKeyType !== 'operator' && previousKeyType !== 'calculate') {
                 
             const calcValue = calculate(firstValue, operator, secondValue);
             display.textContent = calcValue;
 
             calculator.dataset.firstValue = calcValue;
-        } else {
+        }  else {
+
             calculator.dataset.firstValue = displayedNum;
-            }
+        }
+
 
         key.classList.add('is-depressed')
             calculator.dataset.previousKeyType = 'operator';
@@ -161,6 +158,8 @@ function invokeCalculation (displayedNum, previousKeyType) {
         }
     calculator.dataset.modValue = secondValue;
     calculator.dataset.previousKeyType = 'calculate';
+    
+
 }
 
 function refactorDigitSize () {
@@ -193,3 +192,4 @@ const calculate = (n1, operator, n2) => {
     }
     return result;
 }
+
