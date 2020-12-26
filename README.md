@@ -1,6 +1,6 @@
 # top-calculator
 
-A project by Evan Chipman created in late 2020.
+A project by Young Cashew created in late 2020.
 
 Here are The Odin Projects requirements for this project:
 
